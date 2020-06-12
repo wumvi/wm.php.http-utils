@@ -1,8 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Utils\Request;
-
+namespace Wumvi\Utils;
 
 /**
  * Получение переменных и работы с массивами GET или POST
@@ -19,7 +18,7 @@ class Request
      *
      * @return string Значение переменной
      */
-    public function get(string $name, string $default = ''): string
+    public static function get(string $name, string $default = ''): string
     {
         return $_GET[$name] ?? $default;
     }
@@ -32,24 +31,9 @@ class Request
      *
      * @return integer значение переменной
      */
-    public function getInt(string $name, int $default = 0): int
+    public static function getInt(string $name, int $default = 0): int
     {
         $val = $_GET[$name] ?? $default;
-
-        return $val === '' ? $default : (int)$val;
-    }
-
-    /**
-     * Возвращает значение переменной из POST массива и преобразует в int
-     *
-     * @param string $name название переменной
-     * @param integer $default значение по умолчанию, если переменной нет или опеределена как пустая
-     *
-     * @return integer значение переменной
-     */
-    public function postInt(string $name, int $default = 0): int
-    {
-        $val = $_POST[$name] ?? $default;
 
         return $val === '' ? $default : (int)$val;
     }
@@ -62,14 +46,33 @@ class Request
      *
      * @return string Значение
      */
-    public function post(string $name, string $default = ''): string
+    public static function post(string $name, string $default = ''): string
     {
         return $_POST[$name] ?? $default;
     }
 
-    public function getPostRaw(): string
+    /**
+     * Возвращает значение переменной из POST массива и преобразует в int
+     *
+     * @param string $name название переменной
+     * @param integer $default значение по умолчанию, если переменной нет или опеределена как пустая
+     *
+     * @return integer значение переменной
+     */
+    public static function postInt(string $name, int $default = 0): int
     {
-        return file_get_contents('php://input');
+        $val = $_POST[$name] ?? $default;
+
+        return $val === '' ? $default : (int)$val;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @return string
+     */
+    public static function getPostRaw(): string
+    {
+        return file_get_contents('php://input') ?: '';
     }
 
     /**
@@ -77,7 +80,7 @@ class Request
      *
      * @return bool Post запрос это или нет
      */
-    public function isPost(): bool
+    public static function isPost(): bool
     {
         return $_SERVER['REQUEST_METHOD'] === 'POST';
     }
@@ -87,7 +90,7 @@ class Request
      *
      * @return string хост
      */
-    public function getHost(): string
+    public static function getHost(): string
     {
         return $_SERVER['HTTP_HOST'];
     }
