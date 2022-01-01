@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af3e56a7b31a645117538bac81a5c95e",
+    "content-hash": "54c7f257961313a2b5326b10207d4d05",
     "packages": [],
     "packages-dev": [
         {
@@ -400,9 +400,6 @@
             },
             "require": {
                 "php": "^7.1 || ^8.0"
-            },
-            "replace": {
-                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",
@@ -3940,8 +3937,9 @@
     "prefer-lowest": false,
     "platform": {
         "ext-json": "*",
-        "ext-jwt": "*"
+        "ext-jwt": "*",
+        "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
