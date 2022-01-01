@@ -11,7 +11,3 @@ docker run -ti -v $(pwd)/:/code/ dfuhbu/php8-cli:0.1.4 bash
 
 uopz
 xdebug
-
-uopz_function("my_strlen", function($arg) {
-return strlen($arg);
-});

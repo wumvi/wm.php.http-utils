@@ -17,6 +17,17 @@ class RequestCommonTest extends TestCase
         $this->assertEquals($value, $data, 'Get GET param');
     }
 
+    public function testCookie(): void
+    {
+        $data = '456';
+        $_COOKIE['cookie1'] = $data;
+        $value = Request::cookie('cookie1');
+        $this->assertEquals('456', $value, 'Get Cookie param');
+
+        $value = Request::cookie('cookie-not-exists', 'ddd');
+        $this->assertEquals('ddd', $value, 'Get Cookie param default');
+    }
+
     public function testPost(): void
     {
         $data = '123';

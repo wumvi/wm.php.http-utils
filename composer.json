@@ -25,7 +25,6 @@
       "phpstan analyze -c phpstan.neon"
     ],
     "phpunit": [
-
       "XDEBUG_MODE=coverage phpunit"
     ],
     "phplint": [

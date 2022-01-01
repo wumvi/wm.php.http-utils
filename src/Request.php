@@ -341,7 +341,7 @@ class Request
         string $key,
         array $options = self::DEFAULT_JWT_OPTIONS
     ): ?array {
-        $jwt = self::header($name) ?: self::post($name) ?: self::get($name);
+        $jwt = self::header($name) ?: self::cookie($name) ?: self::post($name) ?: self::get($name);
 
         return empty($jwt) ? null : jwt_decode($jwt, $key, $options);
     }
@@ -357,9 +357,59 @@ class Request
         return empty($data) ? null : new $model($data);
     }
 
-    public static function header(string $name): string
+    /**
+     * @param string $name
+     * @param string $default
+     *
+     * @return string
+     */
+    public static function cookie(string $name, string $default = ''): string
     {
-        return $_SERVER['HTTP_' . strtoupper($name)] ?? '';
+        return $_COOKIE[$name] ?? $default;
+    }
+
+    /**
+     * @param string $name
+     * @param string $key
+     * @param array $options
+     *
+     * @return array
+     */
+    public static function cookieJwt(string $name, string $key, array $options = self::DEFAULT_JWT_OPTIONS)
+    {
+        return jwt_decode($_COOKIE[$name] ?? '', $key, $options);
+    }
+
+    /**
+     * @template T of \stdClass
+     *
+     * @param class-string<T> $model
+     * @param string $name
+     * @param string $key
+     * @param array $options
+     *
+     * @return ?T
+     */
+    public static function cookieJwtModel(
+        string $model,
+        string $name,
+        string $key,
+        array $options = self::DEFAULT_JWT_OPTIONS
+    ): ?object {
+        $data = self::cookieJwt($name, $key, $options);
+
+        return empty($data) ? null : new $model($data);
+    }
+
+    /**
+     * @param string $name
+     * @param string $default
+     *
+     * @return string
+     */
+    public static function header(string $name, string $default = ''): string
+    {
+        return $_SERVER['HTTP_' . strtoupper($name)] ?? $default;
     }
 
     public static function uri(): string

@@ -37,6 +37,16 @@ class RequestJwtTest extends TestCase
         $this->assertEqualsCanonicalizing($model->getValue(), 3, 'header jwt model');
     }
 
+    public function testCookieJwt(): void
+    {
+        $_COOKIE['cookie-jwt1'] = $this->jwt;
+        $value = Request::cookieJwt('cookie-jwt1', 'pwdtest');
+        $this->assertEqualsCanonicalizing($value, ['value' => 3], 'cookie jwt array');
+
+        $model = Request::cookieJwtModel(RequestTestModel::class, 'cookie-jwt1', 'pwdtest');
+        $this->assertEqualsCanonicalizing($model->getValue(), 3, 'cookie jwt model');
+    }
+
     public function testUniversalJwt(): void
     {
         $_SERVER['HTTP_U_JWT3'] = $this->jwt;
