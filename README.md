@@ -5,3 +5,13 @@
 [![codecov](https://codecov.io/gh/wumvi/utils.request/branch/master/graph/badge.svg)](https://codecov.io/gh/wumvi/utils.request)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d46c237991bcef09bbf1/maintainability)](https://codeclimate.com/github/wumvi/utils.request/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/d46c237991bcef09bbf1/test_coverage)](https://codeclimate.com/github/wumvi/utils.request/test_coverage)
+
+
+docker run -ti -v $(pwd)/:/code/ dfuhbu/php8-cli:0.1.4 bash
+
+uopz
+xdebug
+
+uopz_function("my_strlen", function($arg) {
+return strlen($arg);
+});
