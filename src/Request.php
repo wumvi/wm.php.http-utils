@@ -88,14 +88,14 @@ class Request
      * @param int<1, max> $depth [optional]
      * @param int $flags
      *
-     * @return ?array
+     * @return array|object|null
      */
     public static function postBodyJson(
         ?array $default = [],
         ?bool $associative = false,
         int $depth = 512,
         int $flags = JSON_THROW_ON_ERROR
-    ): ?array {
+    ): array|object|null {
         $data = file_get_contents('php://input');
 
         try {
