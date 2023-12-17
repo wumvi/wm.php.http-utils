@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Wumvi\Utils\Request;
+use Wumvi\HttpUtils\Request;
 
 class RequestJsonTest extends TestCase
 {

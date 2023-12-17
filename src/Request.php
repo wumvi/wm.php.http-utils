@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wumvi\Utils;
+namespace Wumvi\HttpUtils;
 
 use Exception;
 
@@ -10,8 +10,6 @@ use Exception;
  */
 class Request
 {
-    public const DEFAULT_JWT_OPTIONS = ['algorithm' => 'HS256'];
-
     /**
      * Возвращает GET переменную
      *
@@ -107,6 +105,50 @@ class Request
     }
 
     /**
+     * @template T of \stdClass
+     *
+     * @param class-string<T> $model
+     * @param string|null $name
+     * @param bool|null $associative
+     * @param int<1, max> $depth
+     * @param int $flags
+     *
+     * @return ?T
+     */
+    public static function postFieldJsonModel(
+        string $model,
+        ?string $name = null,
+        ?bool $associative = true,
+        int $depth = 512,
+        int $flags = JSON_THROW_ON_ERROR
+    ): ?object {
+        $data = self::postFieldJson($name, null, $associative, $depth, $flags);
+
+        return empty($data) ? null : new $model($data);
+    }
+
+    /**
+     * @template T of \stdClass
+     *
+     * @param class-string<T> $model
+     * @param bool|null $associative
+     * @param int<1, max> $depth
+     * @param int $flags
+     *
+     * @return ?T
+     */
+    public static function postBodyJsonModel(
+        string $model,
+        ?bool $associative = true,
+        int $depth = 512,
+        int $flags = JSON_THROW_ON_ERROR
+    ): ?object {
+        $data = self::postBodyJson(null, $associative, $depth, $flags);
+
+        return empty($data) ? null : new $model($data);
+    }
+
+    /**
      *
      * @param ?array $default
      * @param string $name
@@ -161,244 +203,6 @@ class Request
         } catch (\Throwable $ex) {
             return null;
         }
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param string|null $name
-     * @param bool|null $associative
-     * @param int<1, max> $depth
-     * @param int $flags
-     *
-     * @return ?T
-     */
-    public static function postFieldJsonModel(
-        string $model,
-        ?string $name = null,
-        ?bool $associative = true,
-        int $depth = 512,
-        int $flags = JSON_THROW_ON_ERROR
-    ): ?object {
-        $data = self::postFieldJson($name, null, $associative, $depth, $flags);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param bool|null $associative
-     * @param int<1, max> $depth
-     * @param int $flags
-     *
-     * @return ?T
-     */
-    public static function postBodyJsonModel(
-        string $model,
-        ?bool $associative = true,
-        int $depth = 512,
-        int $flags = JSON_THROW_ON_ERROR
-    ): ?object {
-        $data = self::postBodyJson(null, $associative, $depth, $flags);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    /**
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?array
-     */
-    public static function postBodyJwt(string $key, array $options = self::DEFAULT_JWT_OPTIONS): ?array
-    {
-        return jwt_decode(self::postBody(), $key, $options);
-    }
-
-    /**
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?array
-     */
-    public static function postFieldJwt(string $name, string $key, array $options = self::DEFAULT_JWT_OPTIONS): ?array
-    {
-        return jwt_decode(self::post($name), $key, $options);
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?T
-     */
-    public static function postFieldJwtModel(
-        string $model,
-        string $name,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?object {
-        $data = self::postFieldJwt($name, $key, $options);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?T
-     */
-    public static function postBodyJwtModel(
-        string $model,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?object {
-        $data = self::postBodyJwt($key, $options);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    /**
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?array
-     */
-    public static function getJwt(string $name, string $key, array $options = self::DEFAULT_JWT_OPTIONS): ?array
-    {
-        return jwt_decode(self::get($name), $key, $options);
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?T
-     */
-    public static function getJwtModel(
-        string $model,
-        string $name,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?object {
-        $data = self::getJwt($name, $key, $options);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    /**
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?array
-     */
-    public static function headerJwt(string $name, string $key, array $options = self::DEFAULT_JWT_OPTIONS): ?array
-    {
-        return jwt_decode(self::header($name), $key, $options);
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?T
-     */
-    public static function headerJwtModel(
-        string $model,
-        string $name,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?object {
-        $data = self::headerJwt($name, $key, $options);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    public static function jwt(
-        string $name,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?array {
-        $jwt = self::header($name) ?: self::cookie($name) ?: self::post($name) ?: self::get($name);
-
-        return empty($jwt) ? null : jwt_decode($jwt, $key, $options);
-    }
-
-    public static function jwtModel(
-        string $model,
-        string $name,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?object {
-        $data = self::jwt($name, $key, $options);
-
-        return empty($data) ? null : new $model($data);
-    }
-
-    /**
-     * @param string $name
-     * @param string $default
-     *
-     * @return string
-     */
-    public static function cookie(string $name, string $default = ''): string
-    {
-        return $_COOKIE[$name] ?? $default;
-    }
-
-    /**
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return array
-     */
-    public static function cookieJwt(string $name, string $key, array $options = self::DEFAULT_JWT_OPTIONS)
-    {
-        return jwt_decode($_COOKIE[$name] ?? '', $key, $options);
-    }
-
-    /**
-     * @template T of \stdClass
-     *
-     * @param class-string<T> $model
-     * @param string $name
-     * @param string $key
-     * @param array $options
-     *
-     * @return ?T
-     */
-    public static function cookieJwtModel(
-        string $model,
-        string $name,
-        string $key,
-        array $options = self::DEFAULT_JWT_OPTIONS
-    ): ?object {
-        $data = self::cookieJwt($name, $key, $options);
-
-        return empty($data) ? null : new $model($data);
     }
 
     /**

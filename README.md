@@ -7,7 +7,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/d46c237991bcef09bbf1/test_coverage)](https://codeclimate.com/github/wumvi/utils.request/test_coverage)
 
 
-docker run -ti -v $(pwd)/:/code/ dfuhbu/php8-cli:0.1.4 bash
+```
+docker run -ti --rm -v "$(pwd)":/data/ --workdir /data/ --network host dfuhbu/php8.3-cli-dev:1 bash
+```
 
-uopz
-xdebug

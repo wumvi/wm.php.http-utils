@@ -1,7 +1,8 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Wumvi\Utils\Request;
+use Wumvi\HttpUtils\Request;
+use \Wumvi\HttpUtils\Cookie;
 
 class RequestCommonTest extends TestCase
 {
@@ -21,10 +22,10 @@ class RequestCommonTest extends TestCase
     {
         $data = '456';
         $_COOKIE['cookie1'] = $data;
-        $value = Request::cookie('cookie1');
+        $value = Cookie::get('cookie1');
         $this->assertEquals('456', $value, 'Get Cookie param');
 
-        $value = Request::cookie('cookie-not-exists', 'ddd');
+        $value = Cookie::get('cookie-not-exists', 'ddd');
         $this->assertEquals('ddd', $value, 'Get Cookie param default');
     }
 
