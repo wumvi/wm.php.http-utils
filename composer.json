@@ -25,7 +25,7 @@
       "phpstan analyze -c phpstan.neon"
     ],
     "phpunit": [
-      "XDEBUG_MODE=coverage phpunit"
+      "XDEBUG_MODE=coverage php -d extension=uopz ./vendor/bin/phpunit"
     ],
     "phplint": [
       "phplint"

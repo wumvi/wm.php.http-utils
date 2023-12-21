@@ -40,7 +40,7 @@ class JWT
     {
         $jwtRaw = $_POST[$post] ?? $_GET[$get] ?? $_SERVER['HTTP_' . $header] ?? '';
         if ($jwtRaw === '') {
-            throw new \Exception('jwt not found');
+            throw new \Exception('jwt-not-found');
         }
 
         $tks = explode('.', $jwtRaw);
@@ -57,12 +57,14 @@ class JWT
         return new $model($data);
     }
 
-    public function encode($data, $key): string
+    public function encode($data, string $key): string
     {
         if (!array_key_exists($key, $this->keys)) {
-            throw new \Exception('key ' . $key . ' not found');
+            throw new \Exception('key-not-found: ' . $key);
         }
 
-        return FirebaseJWT::encode($data, $this->keys[$key], self::ALGS);
+        $keyCode = $this->keys[$key]->getKeyMaterial();
+        $algo = $this->keys[$key]->getAlgorithm();
+        return FirebaseJWT::encode($data, $keyCode, $algo, $key);
     }
 }

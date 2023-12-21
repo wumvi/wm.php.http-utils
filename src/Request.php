@@ -23,6 +23,11 @@ class Request
         return $_GET[$name] ?? $default;
     }
 
+    public static function getRequestIp()
+    {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+
     /**
      * Возвращает значение переменной из GET массива
      *
