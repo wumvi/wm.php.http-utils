@@ -9,8 +9,8 @@ use Firebase\JWT\Key;
 class JWT
 {
     private const string ALGS = 'HS256';
-    public const string JWT_KEY = 'jwt';
-    public const string JWT_HEADER = 'JWT';
+    public const string TOKEN_KEY = 'token';
+    public const string TOKEN_HEADER = 'TOKEN';
     private array $keys;
 
     public function __construct(array $keys)
@@ -23,34 +23,25 @@ class JWT
      *
      * @param class-string<T> $model
      * @param bool $isCheckPrivateIp
-     * @param string $post
-     * @param string $get
+     * @param string $key
      * @param string $header
      *
      * @return T
      * @throws \Exception
      */
-    public function get(
+    public function getToken(
         string $model,
         bool $isCheckPrivateIp = false,
-        string $post = self::JWT_KEY,
-        string $get = self::JWT_KEY,
-        string $header = self::JWT_HEADER
+        string $key = self::TOKEN_KEY,
+        string $header = self::TOKEN_HEADER
     ) {
-        $jwtRaw = $_POST[$post] ?? $_GET[$get] ?? $_SERVER['HTTP_' . $header] ?? '';
+        $jwtRaw = $_POST[$key] ?? $_GET[$key] ?? $_SERVER['HTTP_' . $header] ?? '';
         if ($jwtRaw === '') {
             throw new \Exception('jwt-not-found');
         }
 
-        $tks = explode('.', $jwtRaw);
-        if (count($tks) === 3 && IpUtils::isPrivateIp($_SERVER['REMOTE_ADDR']) && $isCheckPrivateIp) {
-            list($headb64, $bodyB64, $cryptob64) = $tks;
-            $data = FirebaseJWT::urlsafeB64Decode($bodyB64);
-            $data = FirebaseJWT::jsonDecode($data);
-            return new $model($data);
-        }
-
-        return $this->decode($model, $jwtRaw);
+        $result = $this->decodePrivate($model, $jwtRaw, $isCheckPrivateIp);
+        return $result ?: $this->decode($model, $jwtRaw);
     }
 
     /**
@@ -67,6 +58,21 @@ class JWT
         return new $model(FirebaseJWT::decode($jwtRaw, $this->keys));
     }
 
+    public function decodePrivate(string $model, string $jwtRaw, bool $isCheckPrivateIp)
+    {
+        if (!$isCheckPrivateIp) {
+            return null;
+        }
+        $tks = explode('.', $jwtRaw);
+        if (count($tks) === 3 && IpUtils::isPrivateIp($_SERVER['REMOTE_ADDR'])) {
+            list($headb64, $bodyB64, $cryptob64) = $tks;
+            $data = FirebaseJWT::urlsafeB64Decode($bodyB64);
+            $data = FirebaseJWT::jsonDecode($data);
+            return new $model($data);
+        }
+
+        return null;
+    }
 
     public function encode($data, string $key, ?int $exp = null): string
     {

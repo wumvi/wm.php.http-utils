@@ -26,15 +26,15 @@ class RequestJsonTest extends TestCase
     public function testGetJson(): void
     {
         $_GET['json15'] = base64_encode('{"value":1}');
-        $value = Request::getJson('json15', [], true);
+        $value = Request::getJsonObject('json15', [], true);
         $this->assertEqualsCanonicalizing($value, ['value' => 1], 'get json');
 
         $_GET['json16'] = base64_encode('{"value":1}');
-        $value = Request::getJson('get-json-not-exists', [], true);
+        $value = Request::getJsonObject('get-json-not-exists', [], true);
         $this->assertEqualsCanonicalizing($value, [], 'get json default');
 
         $_GET['json17'] = base64_encode('wrong-json');
-        $value = Request::getJson('json17', [], true);
+        $value = Request::getJsonObject('json17', [], true);
         $this->assertNull($value, 'get json wrong');
     }
 }

@@ -80,33 +80,9 @@ class Request
     /**
      * @return string
      */
-    public static function postBody(): string
+    public static function postBodyRaw(): string
     {
         return file_get_contents('php://input') ?: '';
-    }
-
-    /**
-     * @param ?array $default
-     * @param bool|null $associative
-     * @param int<1, max> $depth [optional]
-     * @param int $flags
-     *
-     * @return array|object|null
-     */
-    public static function postBodyJson(
-        ?array $default = [],
-        ?bool $associative = false,
-        int $depth = 512,
-        int $flags = JSON_THROW_ON_ERROR
-    ): array|object|null {
-        $data = file_get_contents('php://input');
-
-        try {
-            /** @throws Exception */
-            return empty($data) ? $default : json_decode($data, $associative, $depth, $flags);
-        } catch (\Throwable $ex) {
-            return null;
-        }
     }
 
     /**
@@ -120,14 +96,15 @@ class Request
      *
      * @return ?T
      */
-    public static function postFieldJsonModel(
+    public static function getJsonModel(
         string $model,
         ?string $name = null,
         ?bool $associative = true,
+        bool $isBase64 = true,
         int $depth = 512,
         int $flags = JSON_THROW_ON_ERROR
     ): ?object {
-        $data = self::postFieldJson($name, null, $associative, $depth, $flags);
+        $data = self::getJsonObject($name, null, $associative, $isBase64, $depth, $flags);
 
         return empty($data) ? null : new $model($data);
     }
@@ -148,32 +125,31 @@ class Request
         int $depth = 512,
         int $flags = JSON_THROW_ON_ERROR
     ): ?object {
-        $data = self::postBodyJson(null, $associative, $depth, $flags);
+        $data = self::postBodyJsonObject(null, $associative, $depth, $flags);
 
         return empty($data) ? null : new $model($data);
     }
 
+
     /**
-     *
      * @param ?array $default
-     * @param string $name
      * @param bool|null $associative
      * @param int<1, max> $depth [optional]
-     * @param int $flags [optional]
+     * @param int $flags
      *
      * @return array|object|null
      */
-    public static function postFieldJson(
-        string $name,
+    public static function postBodyJsonObject(
         ?array $default = [],
         ?bool $associative = false,
         int $depth = 512,
         int $flags = JSON_THROW_ON_ERROR
     ): array|object|null {
+        $data = file_get_contents('php://input');
+
         try {
-            return array_key_exists($name, $_POST)
-                ? json_decode($_POST[$name], $associative, $depth, $flags)
-                : $default;
+            /** @throws Exception */
+            return empty($data) ? $default : json_decode($data, $associative, $depth, $flags);
         } catch (\Throwable $ex) {
             return null;
         }
@@ -190,7 +166,7 @@ class Request
      *
      * @return array|object|null
      */
-    public static function getJson(
+    public static function getJsonObject(
         string $name,
         ?array $default = [],
         ?bool $associative = false,
@@ -198,12 +174,9 @@ class Request
         int $depth = 512,
         int $flags = JSON_THROW_ON_ERROR
     ): array|object|null {
-        if (!array_key_exists($name, $_GET)) {
-            return $default;
-        }
+        $value = $_POST[$name] ?? $_GET[$name] ?? $default;
         try {
-            $data = $isBase64 ? base64_decode($_GET[$name]) : $_GET[$name];
-
+            $data = $isBase64 ? base64_decode($value) : $value;
             return json_decode($data, $associative, $depth, $flags);
         } catch (\Throwable $ex) {
             return null;
