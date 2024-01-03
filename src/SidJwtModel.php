@@ -25,13 +25,8 @@ class SidJwtModel extends \stdClass
         return $this->raw->uid;
     }
 
-    public function getSession(): ?string
+    public function getSessionId(): int
     {
-        return $this->raw->ss ?? null;
-    }
-
-    public function getApiId(): ?int
-    {
-        return $this->raw->aid ?? null;
+        return $this->raw->sid;
     }
 }
