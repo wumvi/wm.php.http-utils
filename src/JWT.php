@@ -19,14 +19,14 @@ class JWT
     }
 
     /**
-     * @template T of \stdClass
+     * @template T of object
      *
      * @param class-string<T> $model
      * @param bool $isCheckPrivateIp
      * @param string $key
      * @param string $header
      *
-     * @return T
+     * @return T|object
      * @throws \Exception
      */
     public function getToken(
@@ -34,7 +34,7 @@ class JWT
         bool $isCheckPrivateIp = false,
         string $key = self::TOKEN_KEY,
         string $header = self::TOKEN_HEADER
-    ) {
+    ): object {
         $jwtRaw = $_POST[$key] ?? $_GET[$key] ?? $_SERVER['HTTP_' . $header] ?? '';
         if ($jwtRaw === '') {
             throw new \Exception('jwt-not-found');
@@ -45,7 +45,7 @@ class JWT
     }
 
     /**
-     * @template T of \stdClass
+     * @template T of object
      *
      * @param class-string<T> $model
      * @param string $jwtRaw
@@ -53,12 +53,12 @@ class JWT
      * @return T
      * @throws \Exception
      */
-    public function decode(string $model, string $jwtRaw)
+    public function decode(string $model, string $jwtRaw): object
     {
         return new $model(FirebaseJWT::decode($jwtRaw, $this->keys));
     }
 
-    public function decodePrivate(string $model, string $jwtRaw, bool $isCheckPrivateIp)
+    public function decodePrivate(string $model, string $jwtRaw, bool $isCheckPrivateIp): ?object
     {
         if (!$isCheckPrivateIp) {
             return null;
@@ -74,7 +74,7 @@ class JWT
         return null;
     }
 
-    public function encode($data, string $key, ?int $exp = null): string
+    public function encode(array $data, string $key, ?int $exp = null): string
     {
         if (!array_key_exists($key, $this->keys)) {
             throw new \Exception('key-not-found: ' . $key);

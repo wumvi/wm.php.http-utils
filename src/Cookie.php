@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Wumvi\HttpUtils;
 
-class Cookie {
+class Cookie
+{
     /**
      * @param string $name
      * @param string $default

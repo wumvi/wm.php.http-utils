@@ -8,6 +8,6 @@
 
 
 ```
-docker run -ti --rm -v "$(pwd)":/data/ --workdir /data/ --network host dfuhbu/php8.3-cli-dev:1 bash
+docker run -ti --rm -v "$(pwd)":/data/ --workdir /data/ --network host dfuhbu/php8.3.1-cli-dev:1 bash
 ```
 

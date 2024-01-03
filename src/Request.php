@@ -23,7 +23,7 @@ class Request
         return $_GET[$name] ?? $default;
     }
 
-    public static function getRequestIp()
+    public static function getRequestIp(): string
     {
         return $_SERVER['REMOTE_ADDR'];
     }
@@ -168,16 +168,26 @@ class Request
      */
     public static function getJsonObject(
         string $name,
-        ?array $default = [],
+        array|string|null $default = [],
         ?bool $associative = false,
         bool $isBase64 = true,
         int $depth = 512,
         int $flags = JSON_THROW_ON_ERROR
     ): array|object|null {
-        $value = $_POST[$name] ?? $_GET[$name] ?? $default;
+        $value = $_POST[$name] ?? $_GET[$name] ?? null;
+        if ($value === null) {
+            return $default;
+        }
+        if ($isBase64) {
+            $value = base64_decode($value, true);
+            if ($value === false) {
+                return null;
+            }
+        }
+
         try {
-            $data = $isBase64 ? base64_decode($value) : $value;
-            return json_decode($data, $associative, $depth, $flags);
+            $value = json_decode($value, $associative, $depth, $flags);
+            return $value === false ? null : $value;
         } catch (\Throwable $ex) {
             return null;
         }
