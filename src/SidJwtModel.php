@@ -29,4 +29,14 @@ class SidJwtModel extends \stdClass
     {
         return $this->raw->sid;
     }
+
+    public function getExp(): int
+    {
+        return $this->raw->exp;
+    }
+
+    public function getKid(): string
+    {
+        return $this->raw->kid;
+    }
 }

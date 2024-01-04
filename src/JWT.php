@@ -3,11 +3,14 @@ declare(strict_types=1);
 
 namespace Wumvi\HttpUtils;
 
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT as FirebaseJWT;
 use Firebase\JWT\Key;
 
 class JWT
 {
+    private const string EXP = 'exp';
+
     private const string ALGS = 'HS256';
     public const string TOKEN_KEY = 'token';
     public const string TOKEN_HEADER = 'TOKEN';
@@ -55,7 +58,10 @@ class JWT
      */
     public function decode(string $model, string $jwtRaw): object
     {
-        return new $model(FirebaseJWT::decode($jwtRaw, $this->keys));
+        $headers = new \stdClass();
+        $data = FirebaseJWT::decode($jwtRaw, $this->keys, $headers);
+        $data->kid = $headers->kid ?? '';
+        return new $model($data);
     }
 
     public function decodePrivate(string $model, string $jwtRaw, bool $isCheckPrivateIp): ?object
@@ -64,10 +70,21 @@ class JWT
             return null;
         }
         $tks = explode('.', $jwtRaw);
-        if (count($tks) === 3 && IpUtils::isPrivateIp($_SERVER['REMOTE_ADDR'])) {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        if (count($tks) === 3 && ($ip === '' || IpUtils::isPrivateIp($ip))) {
             list($headb64, $bodyB64, $cryptob64) = $tks;
+            $headb64 = FirebaseJWT::urlsafeB64Decode($headb64);
+            $headb64 = FirebaseJWT::jsonDecode($headb64);
             $data = FirebaseJWT::urlsafeB64Decode($bodyB64);
             $data = FirebaseJWT::jsonDecode($data);
+
+            if (isset($data->exp) && \time() >= $data->exp) {
+                $ex = new ExpiredException('Expired token');
+                $ex->setPayload($data);
+                throw $ex;
+            }
+
+            $data->kid = $headb64->kid ?? '';
             return new $model($data);
         }
 
@@ -84,7 +101,7 @@ class JWT
         $algo = $this->keys[$key]->getAlgorithm();
 
         if ($exp !== null) {
-            $data['exp'] = $exp;
+            $data[self::EXP] = $exp;
         }
 
         return FirebaseJWT::encode($data, $keyCode, $algo, $key);

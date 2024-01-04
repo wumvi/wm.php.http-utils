@@ -1,6 +1,8 @@
 vendor/
 .idea/
 build/
+.phplint.cache/
 dev.php
+run.php
 .phplint-cache
 .phpunit.result.cache
